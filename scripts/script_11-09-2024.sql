@@ -85,6 +85,8 @@ create table orden_compra (
     fechaOrden datetime not null,
     estado varchar(20),
     total decimal(10, 2),
+    createdAt datetime not null,
+    updatedAt datetime not null,
     foreign key(IDProveedor) references proveedor(IDProveedor)
 );
 
@@ -96,6 +98,8 @@ create table detalle_orden_compra (
     IDProducto int not null,
     cantidad int not null,
     precioUnitario decimal(10, 2),
+    createdAt datetime not null,
+    updatedAt datetime not null,
     foreign key(IDOrdenCompra) references orden_compra(IDOrdenCompra),
     foreign key(IDProducto) references producto(IDProducto)
 );
