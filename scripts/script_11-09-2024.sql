@@ -6,130 +6,304 @@ create database project_dev_bd;
 
 use project_dev_bd;
 
-#creacion de la entidad pais con sus atributos.
-create table country (
-	idCountry int primary key auto_increment,
-    country varchar(50) not null,
+#creacion de la entidad paises.
+create table countries (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
     createdAt datetime not null,
     updatedAt datetime not null
 );
 
-#creacion de la entidad departamento con sus atributos y relacion pais-departamento.
-create table department (
-	idDepartment int primary key auto_increment,
-    department varchar(40) not null,
-    idCountry int not null,
+#creacion de la entidad departamentos y relacion paises - departamentos.
+create table departments (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    idCountry int(20) not null,
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idCountry) references country(idCountry)
+    foreign key(idCountry) references countries(id)
 );
 
-#creacion entidad ciudad con sus atributos y relacion departamento-ciudad.
-create table city (
-	idCity int primary key auto_increment,
-    city varchar(50) not null,
-    idDepartment int not null,
+#creacion entidad ciudades y relacion departamentos - ciudades.
+create table cities (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    idDepartment int(20) not null,
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idDepartment) references department(idDepartment)
+    foreign key(idDepartment) references departments(id)
 );
 
-#creacion de la entidad categoria con sus atributos.
-create table category (
-	idCategory int primary key auto_increment,
-    category varchar(50) not null,
+#creacion de la entidad categorias-productos.
+create table productsCategories (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
     `description` text,
     createdAt datetime not null,
     updatedAt datetime not null
 );
 
-#creacion de la entidad tipo_proveedor.
-create table supplierType (
-	idSupplierType int primary key auto_increment,
-    `type` varchar(10) not null,
+#creacion de la entidad usuarios.
+create table users (
+	id int(20) primary key auto_increment,
+    email varchar(255) not null unique,
+    `password` varchar(255) not null,
     createdAt datetime not null,
     updatedAt datetime not null
 );
 
-#creacion entidad proveedor con sus atributos.
-#relacion entidades tipo_proveedor y proveedor.
-create table supplier (
-	idSupplier int primary key auto_increment,
-    idSupplierType int not null,
-    `names` varchar(40),
-    paternalSurname varchar(30),
-    maternalSurname varchar(30),
-    companyName varchar(50),
-    nit varchar(15),
-    address varchar(80),
-    email varchar(80),
-    phone varchar(12) not null,
+#creacion de la entidad tipo_documento
+create table documentTypes (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
     createdAt datetime not null,
-    updatedAt datetime not null,
-    foreign key(idSupplierType) references supplierType(idSupplierType)
+    updatedAt datetime not null
 );
 
-#creacion entidad proveedor_ciudad.
-#se relacionan las entidades proveedor y ciudad.
-create table supplierCity (
-	idSupplierCity int primary key auto_increment,
-    idSupplier int not null,
-    idCity int not null,
+#creacion entidad personas.
+#relacion entidades usuarios - personas.
+create table people (
+	id int(20) primary key auto_increment,
+    idUser int(20) default null unique,
+    idDocumentType int(20) not null,
+    document varchar(255) not null unique,
+    firstName varchar(255),
+    middleName varchar(255),
+    paternalSurname varchar(255),
+    maternalSurname varchar(255),
+    address varchar(255),
+    email varchar(255),
+    phone varchar(255) not null,
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idSupplier) references supplier(idSupplier),
-    foreign key(idCity) references city(idCity)
+    foreign key(idUser) references users(id),
+    foreign key(idDocumentType) references documentTypes(id)
 );
 
-#creacion entidad producto con sus atributos.
-#se relacionan las entidades categoria-producto y proveedor-producto.
-create table product (
-	idProduct int primary key auto_increment,
-    product varchar(50) not null,
+#creacion de la entidad roles.
+create table roles (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null
+);
+
+#creacion de la entidad usuarios_roles.
+#entidad que relaciona usuarios con roles.
+create table usersRoles (
+	id int(20) primary key auto_increment,
+    idUser int(20) not null,
+    idRole int(20) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idUser) references users(id),
+    foreign key(idRole) references roles(id)
+);
+
+#creacion entidad ciudad_personas.
+#entidad que relaciona personas con ciudades.
+create table peopleCity (
+	id int(20) primary key auto_increment,
+    idPerson int(20) not null,
+    idCity int(20) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idPerson) references people(id),
+    foreign key(idCity) references cities(id)
+);
+
+#creacion entidad productos.
+#se relacionan las entidades categorias - productos y proveedores - productos.
+create table products (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
     `description` text,
-    idCategory int not null,
-    idSupplier int not null,
+    idCategory int(20) not null,
+    idSupplier int(20) not null,
     currentStock int not null,
     minimumStock int not null,
     unitPrice decimal(10, 2) not null,
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idCategory) references category(idCategory),
-    foreign key(idSupplier) references supplier(idSupplier)
+    foreign key(idCategory) references productsCategories(id),
+    foreign key(idSupplier) references users(id)
 );
 
-#creacion entidad estado_orden_compra
+#creacion entidad estados_orden_compra
 create table purchaseOrderStatus (
-	idPurchaseOrderStatus int primary key auto_increment,
-    `status` varchar(20) not null,
+	id int(20) primary key auto_increment,
+    `status` varchar(255) not null,
     createdAt datetime not null,
     updatedAt datetime not null
 );
 
-#creacion entidad orden_compra con sus atributos.
-#se relaciona las entidades proveedor-orden_compra y estado_orden_compra-orden_compra.
-create table purchaseOrder (
-	idPurchaseOrder int primary key auto_increment,
-    idSupplier int not null,
+#creacion entidad ordenes_compra.
+#se relaciona las entidades proveedores - ordenes_compra y estados_orden_compra - ordenes_compra.
+create table purchaseOrders (
+	id int(20) primary key auto_increment,
+    idSupplier int(20) not null,
     orderDate datetime not null,
-    idStatus int not null,
+    idStatus int(20) not null,
     total decimal(10, 2),
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idSupplier) references supplier(idSupplier),
-    foreign key(idStatus) references purchaseOrderStatus(idPurchaseOrderStatus)
+    foreign key(idSupplier) references users(id),
+    foreign key(idStatus) references purchaseOrderStatus(id)
 );
 
-#creacion entidad detalle_orden_compra.
-#relacion entidades detalle_orden_compra - orden_compra  y  detalle_orden_compra - producto.
-create table purchaseOrderDetail (
-	idPurchaseOrderDetail int primary key auto_increment,
-    idPurchaseOrder int not null,
-    idProduct int not null,
+#creacion entidad detalles_orden_compra.
+#Entidad que relaciona ordenes_de_compra con productos.
+create table purchaseOrderDetails (
+	id int(20) primary key auto_increment,
+    idPurchaseOrder int(20) not null,
+    idProduct int(20) not null,
     quantity int not null,
     unitPrice decimal(10, 2),
     createdAt datetime not null,
     updatedAt datetime not null,
-    foreign key(idPurchaseOrder) references purchaseOrder(idPurchaseOrder),
-    foreign key(idProduct) references product(idProduct)
+    foreign key(idPurchaseOrder) references purchaseOrders(id),
+    foreign key(idProduct) references products(id)
+);
+
+#creacion entidad facturas
+#Relacion facturas-usuarios(vendedor)
+create table invoices (
+	id int(20) primary key auto_increment,
+    idCustomer int(20) default null,
+    idSeller int(20) not null,
+    invoiceDate datetime not null,
+    totalAmount decimal(10, 2) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idCustomer) references users(id),
+    foreign key(idSeller) references users(id)
+);
+
+#creacion entidad detalles_factura
+#Entidad que relaciona facturas con productos
+create table invoiceDetails (
+	id int(20) primary key auto_increment,
+    idInvoice int(20) not null,
+    idProduct int(20) not null,
+    quantity int not null,
+    unitPrice decimal(10, 2),
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idInvoice) references invoices(id),
+    foreign key(idProduct) references products(id)
+);
+
+#creacion entidad tiendas
+create table stores (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    nit varchar(255) not null unique,
+    address varchar(255),
+    phone varchar(255),
+    createdAt datetime not null,
+    updatedAt datetime not null
+);
+
+#creacion entidad productos_tienda
+#Entidad que relaciona la tienda con sus productos
+create table storeProducts (
+	id int(20) primary key auto_increment,
+    idStore int(20) not null,
+    idProduct int(20) not null,
+    stock int(20) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idStore) references stores(id),
+    foreign key(idProduct) references products(id)
+);
+
+#creacion entidad metodos_de_pago
+create table paymentMethods (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null
+);
+
+#creacion entidad pasarelas_de_pago
+#relacion pasarelas_de_pago con metodos_de_pago
+create table paymentGateaways (
+	id int(20) primary key auto_increment,
+    idPaymentMethod int(20) not null,
+    `name` varchar(255) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idPaymentMethod) references paymentMethods(id)
+);
+
+#creacion entidad tiendas_pasarelas_de_pago
+#relacion con tiendas y pasarelas_de_pago
+create table paymentGateawaysStores (
+	id int(20) primary key auto_increment,
+    idStore int(20) not null,
+    idPaymentGateaway int(20) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idStore) references stores(id),
+    foreign key(idPaymentGateaway) references paymentGateaways(id)
+);
+
+#creacion entidad pagos
+#Relacion pagos con metodos_de_pago y pagos con facturas
+create table payments (
+	id int(20) primary key auto_increment,
+    idInvoice int(20) not null,
+    idPaymentMethod int(20) not null,
+    paymentDate datetime not null,
+    amount decimal(10, 2),
+    idPaymentGateawaysStore int(20) not null,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idInvoice) references invoices(id),
+    foreign key(idPaymentMethod) references paymentMethods(id),
+    foreign key(idPaymentGateawaysStore) references paymentGateawaysStores(id)
+);
+
+#creacion entidad registros_de_pasarela_de_pago
+#relacion registros_de_pasarela_de_pago con pagos
+create table paymentGateawayRecords (
+	id int(20) primary key auto_increment,
+    idInvoice int(20) not null,
+    idPayment int(20) not null,
+    dataResponse text,
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idInvoice) references invoices(id),
+    foreign key(idPayment) references payments(id)
+);
+
+#creacion entidad parametros
+create table parameters (
+	id int(20) primary key auto_increment,
+    `code` varchar(255) not null,
+    `description` varchar(255),
+    createdAt datetime not null,
+    updatedAt datetime not null
+);
+
+#creacio entidad parametros_tiendas_pasarelas_de_pago
+#relacion con parametros y tiendas_pasarelas_de_pago
+create table paymentGateawaysStoresParameters (
+	id int(20) primary key auto_increment,
+    idParameter int(20) not null,
+    idPaymentGateawayStore int(20) not null,
+    `value` varchar(255),
+    createdAt datetime not null,
+    updatedAt datetime not null,
+    foreign key(idParameter) references parameters(id),
+    foreign key(idPaymentGateawayStore) references paymentGateawaysStores(id)
+);
+
+#Tablas para realizar Auditoria
+create table departmentsAudit (
+	id int(20) primary key auto_increment,
+    `name` varchar(255) not null,
+    idCountry int(20) not null,
+    createdAt datetime not null,
+    actionTime datetime not null
 );
